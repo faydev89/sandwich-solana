@@ -1,0 +1,81 @@
+cargo new solana_mev_bot
+cd solana_mev_bot
+
+[dependencies]
+solana-client = "1.9.0"
+solana-sdk = "1.9.0"
+serum-dex = "0.3.1"
+tokio = { version = "1", features = ["full"] }
+
+// src/main.rs
+use solana_client::rpc_client::RpcClient;
+use solana_sdk::{
+    commitment_config::CommitmentConfig,
+    signature::{Keypair, Signer},
+    transaction::Transaction,
+    system_instruction,
+    pubkey::Pubkey,
+};
+use tokio::time::{self, Duration};
+use serum_dex::instruction::MarketInstruction;
+use std::str::FromStr;
+
+const RPC_URL: &str = "https://api.mainnet-beta.solana.com";
+const WALLET_PATH: &str = "path/to/your/wallet.json";
+const SERUM_MARKET: &str = "Serum market address";
+const RAYDIUM_MARKET: &str = "Raydium market address";
+const TOKEN_MINT: &str = "Token mint address";
+
+async fn check_arbitrage() -> Result<(), Box<dyn std::error::Error>> {
+    let client = RpcClient::new_with_commitment(RPC_URL.to_string(), CommitmentConfig::confirmed());
+
+    // Load wallet
+    let wallet = Keypair::from_bytes(&std::fs::read(WALLET_PATH)?)?;
+
+    // Fetch prices from Serum and Raydium
+    let serum_price = get_price(&client, SERUM_MARKET).await?;
+    let raydium_price = get_price(&client, RAYDIUM_MARKET).await?;
+
+    // Compare prices and perform arbitrage if there is a profitable opportunity
+    if serum_price > raydium_price {
+        println!("Arbitrage Opportunity: Buy on Raydium, Sell on Serum");
+        execute_trade(&client, &wallet, SERUM_MARKET, raydium_price, TOKEN_MINT).await?;
+    } else if raydium_price > serum_price {
+        println!("Arbitrage Opportunity: Buy on Serum, Sell on Raydium");
+        execute_trade(&client, &wallet, RAYDIUM_MARKET, serum_price, TOKEN_MINT).await?;
+    } else {
+        println!("No arbitrage opportunity found.");
+    }
+
+    Ok(())
+}
+
+async fn get_price(client: &RpcClient, market_address: &str) -> Result<f64, Box<dyn std::error::Error>> {
+    // Fetch market data and calculate the price
+    // This is a placeholder. Implement the logic to fetch and calculate the price from the market.
+    Ok(1.0)
+}
+
+async fn execute_trade(
+    client: &RpcClient,
+    wallet: &Keypair,
+    market_address: &str,
+    price: f64,
+    token_mint: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    // Execute the trade on the specified market
+    // This is a placeholder. Implement the logic to perform the trade on the market.
+    Ok(())
+}
+
+#[tokio::main]
+async fn main() {
+    let mut interval = time::interval(Duration::from_secs(60));
+    loop {
+        interval.tick().await;
+        match check_arbitrage().await {
+            Ok(_) => println!("Checked for arbitrage opportunities."),
+            Err(e) => eprintln!("Error checking for arbitrage: {:?}", e),
+        }
+    }
+}
