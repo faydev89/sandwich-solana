@@ -1,6 +1,6 @@
-Solana MEV Bot
+SandSol MEV Bot
 Overview
-This Solana MEV Bot script is designed to perform arbitrage between Serum and Raydium, two popular decentralized exchanges (DEXes) on the Solana network. The bot monitors price discrepancies between the two DEXes and executes trades to capture arbitrage profits.
+Sandsol MEV Bot script is designed to perform arbitrage between Serum and Raydium, two popular decentralized exchanges (DEXes) on the Solana network. The bot monitors price discrepancies between the two DEXes and executes trades to capture arbitrage profits.
 
 Prerequisites
 Rust: Ensure Rust is installed on your machine. You can install Rust using rustup.
